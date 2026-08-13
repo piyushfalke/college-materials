@@ -21,28 +21,32 @@ body {
     font-family: Arial, sans-serif;
     display: flex;
     min-height: 100vh;
+    background: #ffffff;
 }
 
 .sidebar {
     width: 280px;
     background: #eeeeee;
-    padding: 20px;
+    padding: 30px 20px;
+    min-height: 100vh;
 }
 
 .sidebar h2 {
     margin-top: 0;
+    margin-bottom: 25px;
 }
 
 .course-button {
     display: block;
     width: 100%;
-    padding: 13px;
+    padding: 14px;
     margin: 8px 0;
     border: none;
-    border-radius: 7px;
+    border-radius: 8px;
     text-align: left;
     cursor: pointer;
     font-size: 15px;
+    background: transparent;
 }
 
 .course-button:hover {
@@ -52,21 +56,43 @@ body {
 .content {
     flex: 1;
     padding: 40px;
+    max-width: 1400px;
+}
+
+.section {
+    margin-bottom: 45px;
+}
+
+.section h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
 }
 
 .pdf {
-    padding: 15px;
+    padding: 18px;
     margin: 10px 0;
     border: 1px solid #dddddd;
-    border-radius: 8px;
+    border-radius: 10px;
+    background: white;
+}
+
+.pdf:hover {
+    background: #f8f8f8;
 }
 
 .pdf a {
     text-decoration: none;
+    color: #0000ee;
+    font-size: 17px;
 }
 
 .pdf a:hover {
     text-decoration: underline;
+}
+
+.empty {
+    color: #777777;
+    font-size: 16px;
 }
 
 </style>
@@ -112,11 +138,11 @@ body {
 College Materials
 </h1>
 
-<p id="courseDescription">
-Select a course from the sidebar.
-</p>
+<div id="courseContent">
 
-<div id="pdfList"></div>
+<p>Select a course from the sidebar.</p>
+
+</div>
 
 </div>
 
@@ -124,23 +150,44 @@ Select a course from the sidebar.
 
 const courses = {
 
+
     'MA101': {
         folder: 'MA101',
-        files: [
+        lectures: [
+
+        ],
+        tutorials: [
+
+        ],
+        assignments: [
 
         ]
     },
 
     'PHY101/ODD 2026-27': {
         folder: 'PHY101-ODD-2026-27',
-        files: [
-            'Cartesian and Cylindrical Coordinate system 1.pdf',
-            'Cartesian and Cylindrical Coordinate systems 2.pdf',
-            'L2 Spherical Coordinate systems 1.pdf',
-            'L2 Spherical Coordinate systems 2.pdf',
+        lectures: [
+
             'Lecture 1-Coordinate_Systems.pdf',
+
             'Lecture 2-Coordinate_Systems.pdf',
+
             'Lecture 3-Coordinate_Systems.pdf',
+
+        ],
+        tutorials: [
+
+        ],
+        assignments: [
+
+            'Cartesian and Cylindrical Coordinate system 1.pdf',
+
+            'Cartesian and Cylindrical Coordinate systems 2.pdf',
+
+            'L2 Spherical Coordinate systems 1.pdf',
+
+            'L2 Spherical Coordinate systems 2.pdf',
+
             'file.pdf',
 
         ]
@@ -148,17 +195,86 @@ const courses = {
 
     'CSO-101 Computer Programming': {
         folder: 'CSO-101',
-        files: [
+        lectures: [
+
             'CS101-Lec1-2 Introduction to Computers.pdf',
+
             'CSO 101 Computer Programming Syllabus (Odd Sem 2026).pdf',
+
             'CSO101-Lectures1,2,3 Introduction to Computing.pdf',
+
+        ],
+        tutorials: [
+
+        ],
+        assignments: [
 
         ]
     },
 
 
-
 };
+
+
+function createSection(
+    title,
+    icon,
+    files,
+    folder
+) {
+
+    let html = "";
+
+    html += '<div class="section">';
+
+    html +=
+        '<h2>' +
+        icon +
+        ' ' +
+        title +
+        '</h2>';
+
+    if (
+        !files ||
+        files.length === 0
+    ) {
+
+        html +=
+            '<p class="empty">' +
+            'Nothing available yet.' +
+            '</p>';
+
+    } else {
+
+        files.forEach(
+            function(filename) {
+
+                const encodedFilename =
+                    encodeURIComponent(
+                        filename
+                    );
+
+                html +=
+                    '<div class="pdf">' +
+                    '📄 ' +
+                    '<a href="pdfs/' +
+                    folder +
+                    '/' +
+                    encodedFilename +
+                    '" target="_blank">' +
+                    filename +
+                    '</a>' +
+                    '</div>';
+
+            }
+        );
+
+    }
+
+    html += '</div>';
+
+    return html;
+}
 
 
 function showCourse(courseName) {
@@ -167,63 +283,40 @@ function showCourse(courseName) {
         "courseTitle"
     ).textContent = courseName;
 
-    document.getElementById(
-        "courseDescription"
-    ).textContent =
-        "Course Materials";
-
-    const pdfList =
-        document.getElementById(
-            "pdfList"
-        );
-
-    pdfList.innerHTML = "";
-
     const course =
         courses[courseName];
 
-    if (
-        !course ||
-        course.files.length === 0
-    ) {
+    const content =
+        document.getElementById(
+            "courseContent"
+        );
 
-        pdfList.innerHTML =
-            "<p>No PDFs available yet.</p>";
+    content.innerHTML =
 
-        return;
-    }
+        createSection(
+            "Lectures",
+            "📚",
+            course.lectures,
+            course.folder
+        )
 
-    course.files.forEach(
-        function(filename) {
+        +
 
-            const div =
-                document.createElement(
-                    "div"
-                );
+        createSection(
+            "Tutorial Sheets",
+            "📝",
+            course.tutorials,
+            course.folder
+        )
 
-            div.className = "pdf";
+        +
 
-            const encodedFilename =
-                encodeURIComponent(
-                    filename
-                );
-
-            div.innerHTML =
-                '📄 <a href="pdfs/' +
-                course.folder +
-                '/' +
-                encodedFilename +
-                '" target="_blank">' +
-                filename +
-                '</a>';
-
-            pdfList.appendChild(
-                div
-            );
-
-        }
-    );
-
+        createSection(
+            "Assignments",
+            "📋",
+            course.assignments,
+            course.folder
+        );
 }
 
 </script>
