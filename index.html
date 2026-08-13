@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
@@ -19,16 +20,25 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+    background: #ffffff;
+    color: #111111;
     display: flex;
     min-height: 100vh;
-    background: #ffffff;
 }
+
+/* ================================
+   SIDEBAR
+   ================================ */
 
 .sidebar {
     width: 280px;
+    min-height: 100vh;
     background: #eeeeee;
     padding: 30px 20px;
-    min-height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .sidebar h2 {
@@ -39,25 +49,40 @@ body {
 .course-button {
     display: block;
     width: 100%;
-    padding: 14px;
+    padding: 14px 12px;
     margin: 8px 0;
     border: none;
     border-radius: 8px;
+    background: transparent;
     text-align: left;
     cursor: pointer;
     font-size: 15px;
-    background: transparent;
 }
 
 .course-button:hover {
     background: #dddddd;
 }
 
+/* ================================
+   MAIN CONTENT
+   ================================ */
+
 .content {
-    flex: 1;
+    margin-left: 280px;
     padding: 40px;
-    max-width: 1400px;
+    width: calc(100% - 280px);
+    max-width: 1500px;
 }
+
+#courseTitle {
+    font-size: 32px;
+    margin-top: 0;
+    margin-bottom: 35px;
+}
+
+/* ================================
+   SECTIONS
+   ================================ */
 
 .section {
     margin-bottom: 45px;
@@ -65,24 +90,29 @@ body {
 
 .section h2 {
     font-size: 28px;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
+/* ================================
+   PDF ITEMS
+   ================================ */
+
 .pdf {
-    padding: 18px;
+    padding: 18px 22px;
     margin: 10px 0;
     border: 1px solid #dddddd;
     border-radius: 10px;
-    background: white;
+    background: #ffffff;
+    transition: background 0.15s;
 }
 
 .pdf:hover {
-    background: #f8f8f8;
+    background: #f7f7f7;
 }
 
 .pdf a {
-    text-decoration: none;
     color: #0000ee;
+    text-decoration: none;
     font-size: 17px;
 }
 
@@ -95,6 +125,24 @@ body {
     font-size: 16px;
 }
 
+/* ================================
+   MOBILE
+   ================================ */
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        width: 210px;
+    }
+
+    .content {
+        margin-left: 210px;
+        width: calc(100% - 210px);
+        padding: 25px;
+    }
+
+}
+
 </style>
 
 </head>
@@ -104,6 +152,7 @@ body {
 <div class="sidebar">
 
 <h2>📚 My Courses</h2>
+
 
 <button
     class="course-button"
@@ -140,7 +189,9 @@ College Materials
 
 <div id="courseContent">
 
-<p>Select a course from the sidebar.</p>
+<p>
+Select a course from the sidebar.
+</p>
 
 </div>
 
@@ -153,68 +204,73 @@ const courses = {
 
     'MA101': {
         folder: 'MA101',
+
         lectures: [
 
         ],
+
         tutorials: [
 
         ],
+
         assignments: [
 
         ]
     },
+
 
     'PHY101/ODD 2026-27': {
         folder: 'PHY101-ODD-2026-27',
+
         lectures: [
-
+            'Cartesian and Cylindrical Coordinate system 1.pdf',
+            'Cartesian and Cylindrical Coordinate systems 2.pdf',
+            'file.pdf',
+            'L2 Spherical Coordinate systems 1.pdf',
+            'L2 Spherical Coordinate systems 2.pdf',
             'Lecture 1-Coordinate_Systems.pdf',
-
             'Lecture 2-Coordinate_Systems.pdf',
-
             'Lecture 3-Coordinate_Systems.pdf',
 
         ],
+
         tutorials: [
 
         ],
+
         assignments: [
-
-            'Cartesian and Cylindrical Coordinate system 1.pdf',
-
-            'Cartesian and Cylindrical Coordinate systems 2.pdf',
-
-            'L2 Spherical Coordinate systems 1.pdf',
-
-            'L2 Spherical Coordinate systems 2.pdf',
-
-            'file.pdf',
 
         ]
     },
+
 
     'CSO-101 Computer Programming': {
         folder: 'CSO-101',
+
         lectures: [
-
             'CS101-Lec1-2 Introduction to Computers.pdf',
-
             'CSO 101 Computer Programming Syllabus (Odd Sem 2026).pdf',
-
             'CSO101-Lectures1,2,3 Introduction to Computing.pdf',
 
         ],
+
         tutorials: [
 
         ],
+
         assignments: [
 
         ]
     },
+
 
 
 };
 
+
+/* ==========================================
+   CREATE PDF SECTION
+   ========================================== */
 
 function createSection(
     title,
@@ -223,11 +279,12 @@ function createSection(
     folder
 ) {
 
-    let html = "";
+    let section = "";
 
-    html += '<div class="section">';
+    section +=
+        '<div class="section">';
 
-    html +=
+    section +=
         '<h2>' +
         icon +
         ' ' +
@@ -239,7 +296,7 @@ function createSection(
         files.length === 0
     ) {
 
-        html +=
+        section +=
             '<p class="empty">' +
             'Nothing available yet.' +
             '</p>';
@@ -254,7 +311,7 @@ function createSection(
                         filename
                     );
 
-                html +=
+                section +=
                     '<div class="pdf">' +
                     '📄 ' +
                     '<a href="pdfs/' +
@@ -262,29 +319,54 @@ function createSection(
                     '/' +
                     encodedFilename +
                     '" target="_blank">' +
-                    filename +
+                    escapeHtml(filename) +
                     '</a>' +
                     '</div>';
 
             }
         );
-
     }
 
-    html += '</div>';
+    section += '</div>';
 
-    return html;
+    return section;
 }
 
 
+/* ==========================================
+   ESCAPE HTML
+   ========================================== */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+
+/* ==========================================
+   SHOW COURSE
+   ========================================== */
+
 function showCourse(courseName) {
+
+    const course =
+        courses[courseName];
+
+    if (!course) {
+
+        return;
+    }
 
     document.getElementById(
         "courseTitle"
     ).textContent = courseName;
-
-    const course =
-        courses[courseName];
 
     const content =
         document.getElementById(
