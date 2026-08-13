@@ -1,59 +1,201 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>College Materials</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            display: flex;
-        }
+<meta charset="UTF-8">
 
-        .sidebar {
-            width: 250px;
-            background: #eeeeee;
-            min-height: 100vh;
-            padding: 20px;
-        }
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-        .sidebar button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: none;
-            cursor: pointer;
-            text-align: left;
-        }
+<title>College Materials</title>
 
-        .content {
-            padding: 40px;
-        }
-    </style>
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background: #eeeeee;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    margin-top: 0;
+}
+
+.course-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 6px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.course-button:hover {
+    background: #dddddd;
+}
+
+.content {
+    flex: 1;
+    padding: 40px;
+}
+
+.pdf {
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+}
+
+.pdf a {
+    text-decoration: none;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <div class="sidebar">
 
-    <h2>📚 My Courses</h2>
+<h2>📚 My Courses</h2>
 
-    <button>MA101</button>
+<button class="course-button"
+        onclick="showCourse('MA101')">
+    MA101
+</button>
 
-    <button>PHY101/ODD 2026-27</button>
+<button class="course-button"
+        onclick="showCourse('PHY101/ODD 2026-27')">
+    PHY101/ODD 2026-27
+</button>
 
-    <button>CSO-101 Computer Programming</button>
+<button class="course-button"
+        onclick="showCourse('CSO-101 Computer Programming')">
+    CSO-101 Computer Programming
+</button>
+
 
 </div>
 
 <div class="content">
 
-    <h1>College Materials</h1>
+<h1 id="courseTitle">
+College Materials
+</h1>
 
-    <p>Select a course from the left.</p>
+<p id="courseDescription">
+Select a course from the sidebar.
+</p>
+
+<div id="pdfList"></div>
 
 </div>
 
+<script>
+
+const courses = {
+
+    'MA101': {
+        folder: 'MA101',
+        files: [
+
+        ]
+    },
+
+    'PHY101/ODD 2026-27': {
+        folder: 'PHY101-ODD-2026-27',
+        files: [
+            'file.pdf',
+
+        ]
+    },
+
+    'CSO-101 Computer Programming': {
+        folder: 'CSO-101',
+        files: [
+            'CS101-Lec1-2 Introduction to Computers.pdf',
+            'CSO 101 Computer Programming Syllabus (Odd Sem 2026).pdf',
+            'CSO101-Lectures1,2,3 Introduction to Computing.pdf',
+
+        ]
+    },
+
+
+
+};
+
+
+function showCourse(courseName) {
+
+    document.getElementById(
+        "courseTitle"
+    ).textContent = courseName;
+
+    document.getElementById(
+        "courseDescription"
+    ).textContent = "Course Materials";
+
+    const pdfList =
+        document.getElementById("pdfList");
+
+    pdfList.innerHTML = "";
+
+    const course =
+        courses[courseName];
+
+    if (!course || course.files.length === 0) {
+
+        pdfList.innerHTML =
+            "<p>No PDFs available yet.</p>";
+
+        return;
+    }
+
+    course.files.forEach(
+        function(filename) {
+
+            const div =
+                document.createElement("div");
+
+            div.className = "pdf";
+
+            const encodedFilename =
+                encodeURIComponent(filename);
+
+            div.innerHTML =
+                '📄 <a href="pdfs/' +
+                course.folder +
+                '/' +
+                encodedFilename +
+                '" target="_blank">' +
+                filename +
+                '</a>';
+
+            pdfList.appendChild(div);
+
+        }
+    );
+
+}
+
+</script>
+
 </body>
+
 </html>
