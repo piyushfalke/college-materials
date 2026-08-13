@@ -21,6 +21,7 @@ body {
     font-family: Arial, sans-serif;
     display: flex;
     min-height: 100vh;
+    background: #f7f7f7;
 }
 
 .sidebar {
@@ -52,11 +53,21 @@ body {
 .content {
     flex: 1;
     padding: 40px;
+    overflow-y: auto;
+}
+
+.section {
+    margin-top: 28px;
+}
+
+.section h2 {
+    margin-bottom: 12px;
 }
 
 .pdf {
     padding: 15px;
     margin: 10px 0;
+    background: white;
     border: 1px solid #dddddd;
     border-radius: 8px;
 }
@@ -67,6 +78,11 @@ body {
 
 .pdf a:hover {
     text-decoration: underline;
+}
+
+.empty {
+    color: #777777;
+    padding: 8px 0;
 }
 
 </style>
@@ -109,14 +125,14 @@ body {
 <div class="content">
 
 <h1 id="courseTitle">
-College Materials
+    College Materials
 </h1>
 
 <p id="courseDescription">
-Select a course from the sidebar.
+    Select a course from the sidebar.
 </p>
 
-<div id="pdfList"></div>
+<div id="courseContent"></div>
 
 </div>
 
@@ -126,32 +142,49 @@ const courses = {
 
     'MA101': {
         folder: 'MA101',
-        files: [
+        materials: [
+
+        ],
+        tutorials: [
+
+        ],
+        assignments: [
 
         ]
     },
 
     'PHY101/ODD 2026-27': {
         folder: 'PHY101-ODD-2026-27',
-        files: [
-            'Cartesian and Cylindrical Coordinate system 1.pdf',
-            'Cartesian and Cylindrical Coordinate systems 2.pdf',
-            'L2 Spherical Coordinate systems 1.pdf',
-            'L2 Spherical Coordinate systems 2.pdf',
-            'Lecture 1-Coordinate_Systems.pdf',
-            'Lecture 2-Coordinate_Systems.pdf',
-            'Lecture 3-Coordinate_Systems.pdf',
-            'file.pdf',
+        materials: [
+            {filename: 'Lecture 3-Coordinate_Systems.pdf', title: "Week 2 - L3: Newton's equation in Various Coordinate systems"},
+
+        ],
+        tutorials: [
+
+        ],
+        assignments: [
+            {filename: 'L2 Spherical Coordinate systems 1.pdf', title: 'Week 2-L2: Spherical polar coordinates'},
+            {filename: 'L2 Spherical Coordinate systems 2.pdf', title: 'Week 2-L2: Spherical polar coordinates'},
+            {filename: 'Lecture 2-Coordinate_Systems.pdf', title: 'Week 2-L2: Spherical polar coordinates'},
+            {filename: 'Cartesian and Cylindrical Coordinate system 1.pdf', title: 'Week 1-L1: Cartesian and Cylindrical Coordinate System'},
+            {filename: 'Cartesian and Cylindrical Coordinate systems 2.pdf', title: 'Week 1-L1: Cartesian and Cylindrical Coordinate System'},
+            {filename: 'Lecture 1-Coordinate_Systems.pdf', title: 'Week 1-L1: Cartesian and Cylindrical Coordinate System'},
 
         ]
     },
 
     'CSO-101 Computer Programming': {
         folder: 'CSO-101',
-        files: [
-            'CS101-Lec1-2 Introduction to Computers.pdf',
-            'CSO 101 Computer Programming Syllabus (Odd Sem 2026).pdf',
-            'CSO101-Lectures1,2,3 Introduction to Computing.pdf',
+        materials: [
+            {filename: 'CSO101-Lectures1,2,3 Introduction to Computing.pdf', title: 'CSO101-Lectures 1,2,3 (Introduction to Computing)'},
+            {filename: 'CS101-Lec1-2 Introduction to Computers.pdf', title: 'CSO101-Lec1-2 Slides'},
+            {filename: 'CSO 101 Computer Programming Syllabus (Odd Sem 2026).pdf', title: 'CSO101-Computer Programming Syllabus'},
+
+        ],
+        tutorials: [
+
+        ],
+        assignments: [
 
         ]
     },
@@ -159,6 +192,77 @@ const courses = {
 
 
 };
+
+
+function createSection(
+    course,
+    title,
+    icon,
+    items
+) {
+
+    const section =
+        document.createElement("div");
+
+    section.className = "section";
+
+    const heading =
+        document.createElement("h2");
+
+    heading.textContent =
+        icon + " " + title;
+
+    section.appendChild(heading);
+
+    if (items.length === 0) {
+
+        const empty =
+            document.createElement("div");
+
+        empty.className = "empty";
+
+        empty.textContent =
+            "Nothing available yet.";
+
+        section.appendChild(empty);
+
+        return section;
+    }
+
+    items.forEach(function(item) {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "pdf";
+
+        const encodedFilename =
+            encodeURIComponent(
+                item.filename
+            );
+
+        const link =
+            document.createElement("a");
+
+        link.href =
+            "pdfs/" +
+            course.folder +
+            "/" +
+            encodedFilename;
+
+        link.target = "_blank";
+
+        link.textContent =
+            "📄 " + item.filename;
+
+        div.appendChild(link);
+
+        section.appendChild(div);
+
+    });
+
+    return section;
+}
 
 
 function showCourse(courseName) {
@@ -170,58 +274,47 @@ function showCourse(courseName) {
     document.getElementById(
         "courseDescription"
     ).textContent =
-        "Course Materials";
+        "Course Materials, Tutorial Sheets and Assignments";
 
-    const pdfList =
+    const content =
         document.getElementById(
-            "pdfList"
+            "courseContent"
         );
 
-    pdfList.innerHTML = "";
+    content.innerHTML = "";
 
     const course =
         courses[courseName];
 
-    if (
-        !course ||
-        course.files.length === 0
-    ) {
-
-        pdfList.innerHTML =
-            "<p>No PDFs available yet.</p>";
-
+    if (!course) {
         return;
     }
 
-    course.files.forEach(
-        function(filename) {
+    content.appendChild(
+        createSection(
+            course,
+            "Course Materials",
+            "📚",
+            course.materials
+        )
+    );
 
-            const div =
-                document.createElement(
-                    "div"
-                );
+    content.appendChild(
+        createSection(
+            course,
+            "Tutorial Sheets",
+            "📝",
+            course.tutorials
+        )
+    );
 
-            div.className = "pdf";
-
-            const encodedFilename =
-                encodeURIComponent(
-                    filename
-                );
-
-            div.innerHTML =
-                '📄 <a href="pdfs/' +
-                course.folder +
-                '/' +
-                encodedFilename +
-                '" target="_blank">' +
-                filename +
-                '</a>';
-
-            pdfList.appendChild(
-                div
-            );
-
-        }
+    content.appendChild(
+        createSection(
+            course,
+            "Assignments",
+            "📋",
+            course.assignments
+        )
     );
 
 }
